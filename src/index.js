@@ -1,8 +1,13 @@
 import './style.css';
 import { format, parseISO } from 'date-fns';
+import { make, query } from 'jeff-query';
 
 // Weatherapi key
 const API_KEY = 'acb745e75bc74a35bd612350232312';
+
+const conditionIcons = {
+    Sunny: '#',
+};
 
 async function loadData(city) {
     try {
@@ -52,6 +57,29 @@ async function loadData(city) {
     }
 }
 
+function createCard(degrees, time, condition) {
+    const card = make('.card');
+    const tempBar = make('.temp-bar', card);
+    const tempDisp = make('.temp-display', tempBar);
+    tempDisp.textContent = degrees;
+    const timeDisp = make('.time', card);
+    timeDisp.textContent = time;
+    const condIcon = make('img.condition-icon', card);
+    condIcon.src = '#';
+    condIcon.alt = condition;
+
+    return card;
+}
+
+function displayHourlyData(data) {
+    const sliderBoard = query('main .slider-board');
+    for (let i = 0; i < 12; i += 1) {
+        const newCard = createCard(69, '6 pm', 'Sunny');
+        sliderBoard.append(newCard);
+    }
+}
+
 loadData('North Charleston').then((data) => {
     console.log(data);
+    displayHourlyData(data);
 });

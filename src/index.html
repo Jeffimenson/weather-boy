@@ -3,11 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I wish template variables worked with html-loader</title>
+    <title>Your trusty weatherboy</title>
 </head>
 <body>
-    <h1>Gorillas below</h1>
-    <p>Remember that webpack watch needs to be reactivated if you update webpack config</p>
-    <img src="./assets/gorillas.jpeg" alt="gorillas">
+    <header>
+        <input type="text" name="search" id="search" value="Hell">
+        <div class="todays-stats">
+            <img src="#" alt="condition-icon">
+            <span class="temp-display">52</span>
+            <span class="condition-text">Cloudy</span>
+            <div class="rain-chancer">52</div>
+            <div class="snow-chancer">0</div>
+        </div>
+        <div class="day-changer">
+            <div class="slider-frame">
+                <div class="slider">
+                    <span>Today</span>
+                    <span>Tomorrow</span>
+                    <span>Tomorrow Prime</span>
+                </div>
+            </div>
+            <button class="left arrow">←</button>
+            <button class="right arrow">→</button>
+        </div>
+    </header>
+    <main>
+        <div class="slider-frame">
+            <button class="left arrow">←</button>
+            <div class="slider-board">
+                <!-- <div class="card">
+                    <div class="temp-bar">
+                        <span class="temp-display">69</span>
+                    </div>
+                    <span class="time">3 pm</span>
+                    <img src="#" alt="condition-icon">
+                </div> -->
+            </div>
+            <button class="right arrow">→</button>
+        </div>
+    </main>
 </body>
 </html>
