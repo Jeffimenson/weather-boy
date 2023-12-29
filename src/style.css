@@ -1,0 +1,72 @@
+:root {
+    --primary: #519872ff;
+    --primary-lighter: #09bc8aff;
+    --secondary: #118ab2ff;
+
+    --neutral-dark: #2b303aff;
+    --neutral-light: #ebebebff;
+
+    --semantic-bad: #a64253ff;
+    --semantic-good: #37FF8Bff;   
+}
+
+html { 
+    font-family: Helvetica, sans-serif;
+    font-size: 18px;
+}
+
+body { 
+    height: 100%;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+button, input, label {
+    box-sizing:content-box;
+    border: none;
+    background-color: inherit;
+    font-family: inherit; 
+    font-size: inherit;
+    color: inherit;
+
+    cursor: pointer;
+    display: block;
+}
+
+button:active, input:active, label:active{
+    cursor: default;
+}
+
+:where(textarea),
+:where(input[type="text"], input[type="search"], input[type="password"], input[type="url"]){
+  appearance: none;
+  border-style: solid;
+  outline: none;
+} 
+
+/* input::placeholder {
+    color: var(--primary-fade);
+    color-scheme: var(--primary-fade);
+} */
+
+ul {
+    list-style: none;
+}
+
+svg {
+    width: 30px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Actual custom styling things below */ 
