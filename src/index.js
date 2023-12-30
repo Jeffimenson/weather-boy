@@ -55,7 +55,9 @@ async function loadData(city) {
 
         return dailyData;
     } catch (err) {
-        console.error(err);
+        if (err.name === 'TypeError') {
+            return null;
+        }
         return err;
     }
 }
@@ -81,13 +83,7 @@ function makeHourSlider(cardCount, cardsPerSlide) {
     const nextButton = query('.carousel .right.arrow');
     const backButton = query('.carousel .left.arrow');
     const sliderElm = query('.carousel .slider-board');
-    console.log({
-        nextButton,
-        backButton,
-        sliderElm,
-        cardCount,
-        cardsPerSlide,
-    });
+
     createSlider(
         nextButton,
         backButton,
@@ -159,12 +155,28 @@ function makeDaySlider() {
 
 function citySearchSetup() {
     const searcher = query('#search');
+    const searchError = query('#search + .error');
 
+    let lastSearch = 'Hell';
+    searcher.value = 'Hell';
     searcher.addEventListener('keydown', async (event) => {
         try {
             if (event.key === 'Enter') {
+                const oldData = weatherData;
                 weatherData = await loadData(searcher.value);
+
+                if (weatherData === null) {
+                    weatherData = oldData;
+                    searcher.value = lastSearch;
+                    searcher.setCustomValidity('No such city!');
+                    searchError.textContent = 'No such city!';
+                } else {
+                    searcher.setCustomValidity('');
+                    searchError.textContent = '';
+                }
+
                 loadDayData(currDaySlide);
+                lastSearch = searcher.value;
             }
         } catch (err) {
             console.error(err);

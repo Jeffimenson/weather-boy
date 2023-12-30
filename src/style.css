@@ -6,7 +6,7 @@
     --neutral-dark: #2b303aff;
     --neutral-light: #ebebebff;
 
-    --semantic-bad: #a64253ff;
+    --semantic-bad: rgb(207, 78, 100);
     --semantic-good: #37FF8Bff;   
 }
 
@@ -125,6 +125,21 @@ header .day-changer .arrow {
     display: flex;
     justify-content: space-between;
 
+}
+
+.search-holder {
+    position: relative;
+}
+
+#search:invalid {
+    border: var(--semantic-bad);
+}
+
+.search-holder .error {
+    font-size: 0.7rem;
+    color: var(--semantic-bad);
+    position: absolute;
+    bottom: -16px;
 }
 
 /* Main section */
