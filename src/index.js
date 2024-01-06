@@ -3,12 +3,10 @@ import { format, parseISO } from 'date-fns';
 import { make, query } from 'jeff-query';
 import createSlider from './slider';
 
+require.context('./assets/weather/64x64/day', true, /\.png$/);
+
 // Weatherapi key
 const API_KEY = 'acb745e75bc74a35bd612350232312';
-
-const conditionIcons = {
-    Sunny: '#',
-};
 
 let weatherData = null;
 
@@ -30,15 +28,24 @@ async function loadData(city) {
             const rainChance = dayData.day.daily_chance_of_rain;
             const snowChance = dayData.day.daily_chance_of_snow;
 
+            const ogIconLink = dayData.day.condition.icon;
+            const iconLink = ogIconLink.replace('//cdn.weatherapi.com', '.'); // I just put the sites' images in the dist folder manually so i dont have to hassle with importing the dozens of images somehow
             const hourlyData = [];
             for (let j = 0; j < dayData.hour.length; j += 1) {
                 const hourDate = dayData.hour[j].time;
                 const parsedDate = parseISO(hourDate);
 
+                const ogHourIconLink = dayData.hour[j].condition.icon;
+                const iconHourLink = ogHourIconLink.replace(
+                    '//cdn.weatherapi.com',
+                    '.'
+                );
+
                 const hourData = {
                     time: format(parsedDate, 'h:mm a'),
                     tempF: dayData.hour[j].temp_f,
                     condition: dayData.hour[j].condition.text,
+                    iconLink: iconHourLink,
                 };
                 hourlyData.push(hourData);
             }
@@ -50,8 +57,11 @@ async function loadData(city) {
                 rainChance,
                 snowChance,
                 hourlyData,
+                iconLink,
             });
         }
+
+        console.log(dailyData);
 
         return dailyData;
     } catch (err) {
@@ -62,10 +72,10 @@ async function loadData(city) {
     }
 }
 
-function createCard(degrees, time, condition) {
+function createCard(degrees, time, condition, barHeight, iconSrc) {
     const card = make('.card');
     const tempBar = make('.temp-bar', card);
-    tempBar.style.height = `${degrees}%`;
+    tempBar.style.height = `${barHeight}%`;
 
     const tempDisp = make('.temp-display', tempBar);
     tempDisp.textContent = `${degrees}°`;
@@ -73,7 +83,7 @@ function createCard(degrees, time, condition) {
     timeDisp.textContent = time;
 
     const condIcon = make('img.condition-icon', card);
-    condIcon.src = '#';
+    condIcon.src = iconSrc;
     condIcon.alt = condition;
 
     return card;
@@ -94,28 +104,92 @@ function makeHourSlider(cardCount, cardsPerSlide) {
     );
 }
 
-function displayHourlyData(data, dayInd) {
+function displayHourlyData(dayInd) {
     const sliderBoard = query('main .slider-board');
     sliderBoard.textContent = '';
     const day = weatherData[dayInd];
+
+    const maxTemp = day.hourlyData.reduce(
+        (max, nextVal) => (nextVal.tempF > max ? nextVal.tempF : max),
+        0
+    );
     for (let i = 0; i < day.hourlyData.length; i += 1) {
         const hour = day.hourlyData[i];
-        const newCard = createCard(hour.tempF, hour.time, hour.condition);
+        const barHeight = (hour.tempF / maxTemp) * 100;
+        const newCard = createCard(
+            hour.tempF,
+            hour.time,
+            hour.condition,
+            barHeight,
+            hour.iconLink
+        );
+        console.log(hour.iconLink);
         sliderBoard.append(newCard);
     }
+}
+
+// Function to update the gradient based on a value
+function updateGradient(value) {
+    const color = interpolateColor(value);
+    document.body.style.background = `linear-gradient(to bottom, ${color.start}, ${color.end})`;
+}
+
+// ---- COLOR CHANGING STUFF ---- //
+// Function to interpolate color between orange and blue
+const startHex = '#08415C'; // Blue
+const barBlue = '#3993DD';
+
+const endHex = '#D66853'; // Orange
+const barOrg = '#F6AF65';
+function interpolateColor(value) {
+    const startColor = hexToRgb(startHex);
+    const endColor = hexToRgb(endHex);
+
+    const r = Math.round(
+        startColor.r + (endColor.r - startColor.r) * (value / 100)
+    );
+    const g = Math.round(
+        startColor.g + (endColor.g - startColor.g) * (value / 100)
+    );
+    const b = Math.round(
+        startColor.b + (endColor.b - startColor.b) * (value / 100)
+    );
+
+    return {
+        start: rgbToHex(startColor.r, startColor.g, startColor.b),
+        end: rgbToHex(r, g, b),
+    };
+}
+
+// Helper function to convert RGB to hex
+function rgbToHex(r, g, b) {
+    const toHex = (c) => `0${c.toString(16)}`.slice(-2);
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255,
+    };
 }
 
 function loadDayData(dayInd) {
     const currDay = weatherData[dayInd];
 
     const iconElement = query('.todays-stats .condition-icon');
-    iconElement.alt = 'NO ICON YET';
+    const image = currDay.iconLink;
+    iconElement.src = image;
 
     const tempDisplayElement = query('.todays-stats .temp-display');
     tempDisplayElement.textContent = `${currDay.avgTempF}°`;
+    updateGradient(currDay.avgTempF);
 
     const conditionTextElement = query('.todays-stats .condition-text');
-    conditionTextElement.textContent = currDay.condition;
+    conditionTextElement.textContent = `${currDay.condition}.`;
 
     const rainChancerElement = query('.todays-stats .rain-chancer');
     rainChancerElement.textContent = `${currDay.rainChance}%`;
@@ -123,7 +197,7 @@ function loadDayData(dayInd) {
     const snowChancerElement = query('.todays-stats .snow-chancer');
     snowChancerElement.textContent = `${currDay.snowChance}%`;
 
-    displayHourlyData(weatherData, dayInd);
+    displayHourlyData(dayInd);
 }
 
 let currDaySlide = 0;
@@ -173,10 +247,9 @@ function citySearchSetup() {
                 } else {
                     searcher.setCustomValidity('');
                     searchError.textContent = '';
+                    loadDayData(currDaySlide);
+                    lastSearch = searcher.value;
                 }
-
-                loadDayData(currDaySlide);
-                lastSearch = searcher.value;
             }
         } catch (err) {
             console.error(err);
