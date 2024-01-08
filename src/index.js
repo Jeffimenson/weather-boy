@@ -112,9 +112,11 @@ function displayHourlyData(dayInd) {
         (max, nextVal) => (nextVal.tempF > max ? nextVal.tempF : max),
         0
     );
+
     for (let i = 0; i < day.hourlyData.length; i += 1) {
         const hour = day.hourlyData[i];
-        const barHeight = (hour.tempF / maxTemp) * 100;
+        let barHeight = (hour.tempF / maxTemp) * 100;
+        barHeight = barHeight < 15 ? 15 : barHeight;
         const newCard = createCard(
             hour.tempF,
             hour.time,
@@ -142,9 +144,11 @@ function loadDayData(dayInd) {
 
     const rainChancerElement = query('.todays-stats .rain-chancer');
     rainChancerElement.textContent = `${currDay.rainChance}%`;
+    rainChancerElement.style.background = `radial-gradient(closest-side, #2b303aff 85%, transparent 80% 100%), conic-gradient(rgb(96, 192, 214) ${currDay.rainChance}%, rgba(171, 172, 171, 0.33) 0)`;
 
     const snowChancerElement = query('.todays-stats .snow-chancer');
     snowChancerElement.textContent = `${currDay.snowChance}%`;
+    snowChancerElement.style.background = `radial-gradient(closest-side, #2b303aff 85%, transparent 80% 100%), conic-gradient(rgb(251, 159, 215) ${currDay.snowChance}%, rgba(171, 172, 171, 0.33) 0)`;
 
     displayHourlyData(dayInd);
     backgradienter.updateGradient(currDay.avgTempF);
