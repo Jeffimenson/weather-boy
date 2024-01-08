@@ -2,8 +2,7 @@ import './style.css';
 import { format, parseISO } from 'date-fns';
 import { make, query } from 'jeff-query';
 import createSlider from './slider';
-
-require.context('./assets/weather/64x64/day', true, /\.png$/);
+import backgradienter from './backgradienter';
 
 // Weatherapi key
 const API_KEY = 'acb745e75bc74a35bd612350232312';
@@ -128,55 +127,6 @@ function displayHourlyData(dayInd) {
     }
 }
 
-// Function to update the gradient based on a value
-function updateGradient(value) {
-    const color = interpolateColor(value);
-    document.body.style.background = `linear-gradient(to bottom, ${color.start}, ${color.end})`;
-}
-
-// ---- COLOR CHANGING STUFF ---- //
-// Function to interpolate color between orange and blue
-const startHex = '#08415C'; // Blue
-const barBlue = '#3993DD';
-
-const endHex = '#D66853'; // Orange
-const barOrg = '#F6AF65';
-function interpolateColor(value) {
-    const startColor = hexToRgb(startHex);
-    const endColor = hexToRgb(endHex);
-
-    const r = Math.round(
-        startColor.r + (endColor.r - startColor.r) * (value / 100)
-    );
-    const g = Math.round(
-        startColor.g + (endColor.g - startColor.g) * (value / 100)
-    );
-    const b = Math.round(
-        startColor.b + (endColor.b - startColor.b) * (value / 100)
-    );
-
-    return {
-        start: rgbToHex(startColor.r, startColor.g, startColor.b),
-        end: rgbToHex(r, g, b),
-    };
-}
-
-// Helper function to convert RGB to hex
-function rgbToHex(r, g, b) {
-    const toHex = (c) => `0${c.toString(16)}`.slice(-2);
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-}
-
-// Helper function to convert hex to RGB
-function hexToRgb(hex) {
-    const bigint = parseInt(hex.slice(1), 16);
-    return {
-        r: (bigint >> 16) & 255,
-        g: (bigint >> 8) & 255,
-        b: bigint & 255,
-    };
-}
-
 function loadDayData(dayInd) {
     const currDay = weatherData[dayInd];
 
@@ -186,7 +136,6 @@ function loadDayData(dayInd) {
 
     const tempDisplayElement = query('.todays-stats .temp-display');
     tempDisplayElement.textContent = `${currDay.avgTempF}°`;
-    updateGradient(currDay.avgTempF);
 
     const conditionTextElement = query('.todays-stats .condition-text');
     conditionTextElement.textContent = `${currDay.condition}.`;
@@ -198,6 +147,7 @@ function loadDayData(dayInd) {
     snowChancerElement.textContent = `${currDay.snowChance}%`;
 
     displayHourlyData(dayInd);
+    backgradienter.updateGradient(currDay.avgTempF);
 }
 
 let currDaySlide = 0;

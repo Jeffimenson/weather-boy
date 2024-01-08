@@ -225,7 +225,6 @@ main {
 .card .temp-bar {
     align-self: self-end;
     text-align: center;
-    background-color: gold;
     height: 100%;
     width: 100%;
 
@@ -235,17 +234,21 @@ main {
 
     box-sizing: border-box;
     padding-top: 20%;
+    overflow: hidden;
+    font-weight: bold;
+}
+
+.card .temp-display {
+    font-size: 1.5rem;
 }
 
 .card .condition-icon {
     width: 50%;
-    align-self:self-start;
 }
 
 .condition-icon {
     background-color: var(--neutral-dark);
     border-radius: 50%;
-    object-position: 0px -5px;
     padding: 3px;
     box-sizing: border-box;
 }
